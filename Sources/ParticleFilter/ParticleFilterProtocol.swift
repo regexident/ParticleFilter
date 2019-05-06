@@ -2,6 +2,11 @@ import Foundation
 
 import particle_filter
 
+public enum ParticleFilterEvaluation {
+    case healthy
+    case impoverished
+}
+
 public struct ParticleFilterOutput {
     let estimate: Double3
     let particles: [Particle]
@@ -31,7 +36,7 @@ public protocol ParticleFilterProtocol {
     func evaluate(
         particles: [Particle],
         model: EvaluationModel
-    ) -> Bool
+    ) -> ParticleFilterEvaluation
 
     func resample(
         particles: [Particle]

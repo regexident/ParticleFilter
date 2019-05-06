@@ -58,7 +58,7 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         )
 
         // Check if resampling is necessary due to depletion:
-        if !evaluate(particles: particles, model: model.evaluation) {
+        if evaluate(particles: particles, model: model.evaluation) == .impoverished {
             // Resample particles:
             particles = resample(particles: particles)
         }
@@ -121,7 +121,7 @@ extension CPUParticleFilter: ParticleFilterProtocol {
     public func evaluate(
         particles: [Particle],
         model: EvaluationModel
-    ) -> Bool {
+    ) -> ParticleFilterEvaluation {
         assert(!particles.isEmpty)
 
         // Neff according to Kong et al. (1994):
@@ -140,7 +140,11 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         let neff = totalWeightsSquared / (totalSquaredWeights + epsilon)
         let normalizedNeff = neff / Double(particles.count)
 
-        return normalizedNeff > model.threshold
+        if normalizedNeff > model.threshold {
+            return .healthy
+        } else {
+            return .impoverished
+        }
     }
 
     public func resample(particles: [Particle]) -> [Particle] {

@@ -55,7 +55,7 @@ extension ParticleFilter: ParticleFilterProtocol {
     public func evaluate(
         particles: [Particle],
         model: EvaluationModel
-    ) -> Bool {
+    ) -> ParticleFilterEvaluation {
         let impl: ParticleFilterProtocol = self.gpu ?? self.cpu
 
         return impl.evaluate(

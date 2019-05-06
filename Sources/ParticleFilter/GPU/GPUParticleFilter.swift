@@ -35,7 +35,7 @@ extension GPUParticleFilter: ParticleFilterProtocol {
     public func evaluate(
         particles: [Particle],
         model: EvaluationModel
-    ) -> Bool {
+    ) -> ParticleFilterEvaluation {
         fatalError("Unimplemented: \(type(of: self)).\(#function)")
     }
     
