@@ -41,6 +41,8 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         model: Model,
         control: Particle.Vector
     ) -> ParticleFilterOutput {
+        assert(!particles.isEmpty)
+        
         var particles = particles
 
         // Predict particle movement based on motion model:
@@ -84,6 +86,8 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         control: Particle.Vector,
         model: MotionModel
     ) -> [Particle] {
+        assert(!particles.isEmpty)
+        
         let stdDeviation = model.stdDeviation
         return particles.map { particle in
             let noiseX = Double.gaussianRandom(mean: 0.0, stdDev: stdDeviation)
@@ -103,6 +107,8 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         observations: [Observation],
         model: ObservationModel
     ) -> [Particle] {
+        assert(!particles.isEmpty)
+        
         let stdDeviation = model.stdDeviation
         let variance = stdDeviation * stdDeviation
         let weights = particles.map { particle in
@@ -148,6 +154,8 @@ extension CPUParticleFilter: ParticleFilterProtocol {
     }
 
     public func resample(particles: [Particle]) -> [Particle] {
+        assert(!particles.isEmpty)
+        
         struct DefaultSource: RandomSource {
             typealias Value = Double
 
@@ -175,9 +183,10 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         particles: [Particle],
         randomSource: T
     ) -> [Particle]
-        where T: RandomSource, T.Value == Double {
-        assert(particles.count == particles.count)
-
+        where T: RandomSource, T.Value == Double
+    {
+        assert(!particles.isEmpty)
+            
         var resampled: [Particle] = []
 
         let n = particles.count
@@ -208,6 +217,8 @@ extension CPUParticleFilter: ParticleFilterProtocol {
     public func estimate(
         particles: [Particle]
     ) -> Particle.Vector {
+        assert(!particles.isEmpty)
+        
         let weight = 1.0 / Double(particles.count)
         let coordinate: Double3 = particles.reduce(.zero) {
             $0 + ($1.xyz * weight)
@@ -220,6 +231,7 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         mean: Particle.Vector
     ) -> Double {
         assert(!particles.isEmpty)
+        
         // 1.0 / (n - 1.0)
         let weight = 1.0 / (Double(particles.count - 1) + 0.0001)
         return particles.reduce(0.0) {
