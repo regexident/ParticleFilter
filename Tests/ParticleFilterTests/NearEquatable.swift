@@ -2,7 +2,7 @@ import XCTest
 
 protocol NearEquatable {
     associatedtype Difference: Comparable
-    
+
     func isNearEqual(to other: Self, accuracy: Difference) -> Bool
 }
 
@@ -14,17 +14,16 @@ func XCTAssertNearEqual<T>(
     file: StaticString = #file,
     line: UInt = #line
 )
-    where T: NearEquatable, T.Difference: FloatingPoint
-{
+    where T: NearEquatable, T.Difference: FloatingPoint {
     let (value, expectedValue): (T, T)
-    
+
     do {
         (value, expectedValue) = (try expression1(), try expression2())
-    } catch let error {
+    } catch {
         XCTFail("Error: \(error)", file: file, line: line)
         return
     }
-    
+
     if !value.isNearEqual(to: expectedValue, accuracy: accuracy) {
         let failureMessage = "XCTAssertEqualWithAccuracy failed: (\(value)) is not equal to (\(expectedValue)) +/- (\(accuracy))"
         let userMessage = message()
@@ -41,13 +40,12 @@ func XCTAssertNearEqual<T, U>(
     file: StaticString = #file,
     line: UInt = #line
 )
-    where T: Collection, T.Element == U, U: NearEquatable, U.Difference: FloatingPoint
-{
+    where T: Collection, T.Element == U, U: NearEquatable, U.Difference: FloatingPoint {
     let (values, expectedValues): (T, T)
 
     do {
         (values, expectedValues) = (try expression1(), try expression2())
-    } catch let error {
+    } catch {
         XCTFail("Error: \(error)", file: file, line: line)
         return
     }

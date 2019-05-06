@@ -8,13 +8,12 @@ func XCTAssertEqual<T, U>(
     file: StaticString = #file,
     line: UInt = #line
 )
-    where T: Collection, T.Element == U, U: FloatingPoint
-{
+    where T: Collection, T.Element == U, U: FloatingPoint {
     let (values, expectedValues): (T, T)
-    
+
     do {
         (values, expectedValues) = (try expression1(), try expression2())
-    } catch let error {
+    } catch {
         XCTFail("Error: \(error)", file: file, line: line)
         return
     }
