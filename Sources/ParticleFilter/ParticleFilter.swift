@@ -3,7 +3,7 @@ public struct ParticleFilter {
     private let gpu: GPUParticleFilter? = nil
 
     public init() {
-        cpu = CPUParticleFilter()
+        self.cpu = CPUParticleFilter()
     }
 }
 
@@ -14,7 +14,7 @@ extension ParticleFilter: ParticleFilterProtocol {
         model: Model,
         control: Particle.Vector
     ) -> ParticleFilterOutput {
-        let impl: ParticleFilterProtocol = gpu ?? cpu
+        let impl: ParticleFilterProtocol = self.gpu ?? self.cpu
 
         return impl.filter(
             particles: particles,
@@ -29,7 +29,7 @@ extension ParticleFilter: ParticleFilterProtocol {
         control: Particle.Vector,
         model: MotionModel
     ) -> [Particle] {
-        let impl: ParticleFilterProtocol = gpu ?? cpu
+        let impl: ParticleFilterProtocol = self.gpu ?? self.cpu
 
         return impl.predict(
             particles: particles,
@@ -43,7 +43,7 @@ extension ParticleFilter: ParticleFilterProtocol {
         observations: [Observation],
         model: ObservationModel
     ) -> [Particle] {
-        let impl: ParticleFilterProtocol = gpu ?? cpu
+        let impl: ParticleFilterProtocol = self.gpu ?? self.cpu
 
         return impl.weight(
             particles: particles,
@@ -56,7 +56,7 @@ extension ParticleFilter: ParticleFilterProtocol {
         particles: [Particle],
         model: EvaluationModel
     ) -> Bool {
-        let impl: ParticleFilterProtocol = gpu ?? cpu
+        let impl: ParticleFilterProtocol = self.gpu ?? self.cpu
 
         return impl.evaluate(
             particles: particles,
@@ -67,7 +67,7 @@ extension ParticleFilter: ParticleFilterProtocol {
     public func resample(
         particles: [Particle]
     ) -> [Particle] {
-        let impl: ParticleFilterProtocol = gpu ?? cpu
+        let impl: ParticleFilterProtocol = self.gpu ?? self.cpu
 
         return impl.resample(particles: particles)
     }
@@ -75,7 +75,7 @@ extension ParticleFilter: ParticleFilterProtocol {
     public func estimate(
         particles: [Particle]
     ) -> Particle.Vector {
-        let impl: ParticleFilterProtocol = gpu ?? cpu
+        let impl: ParticleFilterProtocol = self.gpu ?? self.cpu
 
         return impl.estimate(
             particles: particles
@@ -86,7 +86,7 @@ extension ParticleFilter: ParticleFilterProtocol {
         particles: [Particle],
         mean: Particle.Vector
     ) -> Double {
-        let impl: ParticleFilterProtocol = gpu ?? cpu
+        let impl: ParticleFilterProtocol = self.gpu ?? self.cpu
 
         return impl.variance(
             particles: particles,
