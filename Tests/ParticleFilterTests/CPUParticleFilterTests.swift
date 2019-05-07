@@ -143,7 +143,7 @@ class CPUParticleFilterTests: XCTestCase {
             model: model
         )
 
-        XCTAssertFalse(evaluation)
+        XCTAssertEqual(evaluation, .impoverished)
     }
 
     func test__evaluate__bestCase() {
@@ -162,7 +162,7 @@ class CPUParticleFilterTests: XCTestCase {
             model: model
         )
 
-        XCTAssertTrue(evaluation)
+        XCTAssertEqual(evaluation, .healthy)
     }
 
     func test__evaluate__belowThreshold() {
@@ -181,7 +181,7 @@ class CPUParticleFilterTests: XCTestCase {
             model: model
         )
 
-        XCTAssertFalse(evaluation)
+        XCTAssertEqual(evaluation, .impoverished)
     }
 
     func test__evaluate__aboveThreshold() {
@@ -200,7 +200,7 @@ class CPUParticleFilterTests: XCTestCase {
             model: model
         )
 
-        XCTAssertTrue(evaluation)
+        XCTAssertEqual(evaluation, .healthy)
     }
 
     func test__evaluate__benchmark() {

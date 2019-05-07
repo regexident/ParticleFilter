@@ -13,6 +13,38 @@ public struct ParticleFilterOutput {
     let variance: Double
 }
 
+public protocol ParticleFilterDelegate: class {
+    func particleFilter(
+        _ particleFilter: ParticleFilterProtocol,
+        didPredict particles: [Particle]
+    )
+
+    func particleFilter(
+        _ particleFilter: ParticleFilterProtocol,
+        didWeight particles: [Particle]
+    )
+
+    func particleFilter(
+        _ particleFilter: ParticleFilterProtocol,
+        didEvaluate evaluation: ParticleFilterEvaluation
+    )
+
+    func particleFilter(
+        _ particleFilter: ParticleFilterProtocol,
+        didResample particles: [Particle]
+    )
+
+    func particleFilter(
+        _ particleFilter: ParticleFilterProtocol,
+        didEstimate coordinate: Double3
+    )
+
+    func particleFilter(
+        _ particleFilter: ParticleFilterProtocol,
+        didCalculateVariance variance: Double
+    )
+}
+
 public protocol ParticleFilterProtocol {
     func filter(
         particles: [Particle],
@@ -20,34 +52,4 @@ public protocol ParticleFilterProtocol {
         model: Model,
         control: Double3
     ) -> ParticleFilterOutput
-
-    func predict(
-        particles: [Particle],
-        control: Double3,
-        model: MotionModel
-    ) -> [Particle]
-
-    func weight(
-        particles: [Particle],
-        observations: [Observation],
-        model: ObservationModel
-    ) -> [Particle]
-
-    func evaluate(
-        particles: [Particle],
-        model: EvaluationModel
-    ) -> ParticleFilterEvaluation
-
-    func resample(
-        particles: [Particle]
-    ) -> [Particle]
-
-    func estimate(
-        particles: [Particle]
-    ) -> Double3
-
-    func variance(
-        particles: [Particle],
-        mean: Double3
-    ) -> Double
 }

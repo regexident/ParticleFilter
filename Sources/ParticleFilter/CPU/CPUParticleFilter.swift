@@ -29,59 +29,13 @@ internal protocol RandomSource {
 }
 
 public class CPUParticleFilter {
+    public weak var delegate: ParticleFilterDelegate? = nil
+    
     public init() {
         // nothing
     }
-}
-
-extension CPUParticleFilter: ParticleFilterProtocol {
-    public func filter(
-        particles: [Particle],
-        observations: [Observation],
-        model: Model,
-        control: Particle.Vector
-    ) -> ParticleFilterOutput {
-        assert(!particles.isEmpty)
-        
-        var particles = particles
-
-        // Predict particle movement based on motion model:
-        particles = predict(
-            particles: particles,
-            control: control,
-            model: model.motion
-        )
-
-        // Calculate normalized weights based on observation model:
-        particles = weight(
-            particles: particles,
-            observations: observations,
-            model: model.observation
-        )
-
-        // Check if resampling is necessary due to depletion:
-        if evaluate(particles: particles, model: model.evaluation) == .impoverished {
-            // Resample particles:
-            particles = resample(particles: particles)
-        }
-
-        // Calculate estimated coordinate:
-        let estimate = self.estimate(particles: particles)
-
-        // Calculate variance of particles:
-        let variance = self.variance(
-            particles: particles,
-            mean: estimate
-        )
-
-        return ParticleFilterOutput(
-            estimate: estimate,
-            particles: particles,
-            variance: variance
-        )
-    }
-
-    public func predict(
+    
+    internal func predict(
         particles: [Particle],
         control: Particle.Vector,
         model: MotionModel
@@ -89,7 +43,8 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         assert(!particles.isEmpty)
         
         let stdDeviation = model.stdDeviation
-        return particles.map { particle in
+        
+        let predicted: [Particle] = particles.map { particle in
             let noiseX = Double.gaussianRandom(mean: 0.0, stdDev: stdDeviation)
             let noiseY = Double.gaussianRandom(mean: 0.0, stdDev: stdDeviation)
             let noiseZ = Double.gaussianRandom(mean: 0.0, stdDev: stdDeviation)
@@ -100,9 +55,13 @@ extension CPUParticleFilter: ParticleFilterProtocol {
 
             return Particle(xyz: xyz, weight: weight)
         }
+        
+        self.delegate?.particleFilter(self, didPredict: predicted)
+        
+        return predicted
     }
 
-    public func weight(
+    internal func weight(
         particles: [Particle],
         observations: [Observation],
         model: ObservationModel
@@ -121,10 +80,16 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         }
         let epsilon = 0.000001
         let totalWeight = weights.reduce(0.0) { $0 + $1 } + epsilon
-        return Swift.zip(particles, weights).map { $0.with(weight: $1 / totalWeight) }
+        let weighted: [Particle] = Swift.zip(particles, weights).map { particle, weight in
+            particle.with(weight: weight / totalWeight)
+        }
+        
+        self.delegate?.particleFilter(self, didWeight: weighted)
+        
+        return weighted
     }
 
-    public func evaluate(
+    internal func evaluate(
         particles: [Particle],
         model: EvaluationModel
     ) -> ParticleFilterEvaluation {
@@ -146,14 +111,19 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         let neff = totalWeightsSquared / (totalSquaredWeights + epsilon)
         let normalizedNeff = neff / Double(particles.count)
 
+        let evaluation: ParticleFilterEvaluation
         if normalizedNeff > model.threshold {
-            return .healthy
+            evaluation = .healthy
         } else {
-            return .impoverished
+            evaluation = .impoverished
         }
+        
+        self.delegate?.particleFilter(self, didEvaluate: evaluation)
+        
+        return evaluation
     }
 
-    public func resample(particles: [Particle]) -> [Particle] {
+    internal func resample(particles: [Particle]) -> [Particle] {
         assert(!particles.isEmpty)
         
         struct DefaultSource: RandomSource {
@@ -172,7 +142,7 @@ extension CPUParticleFilter: ParticleFilterProtocol {
 
         let randomSource = DefaultSource(range: 0.0 ..< 1.0)
 
-        return resample(
+        return self.resample(
             particles: particles,
             randomSource: randomSource
         )
@@ -186,7 +156,7 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         where T: RandomSource, T.Value == Double
     {
         assert(!particles.isEmpty)
-            
+        
         var resampled: [Particle] = []
 
         let n = particles.count
@@ -211,22 +181,27 @@ extension CPUParticleFilter: ParticleFilterProtocol {
             resampled.append(particle.with(weight: weight))
         }
 
+        self.delegate?.particleFilter(self, didResample: resampled)
+        
         return resampled
     }
 
-    public func estimate(
+    internal func estimate(
         particles: [Particle]
     ) -> Particle.Vector {
         assert(!particles.isEmpty)
         
         let weight = 1.0 / Double(particles.count)
-        let coordinate: Double3 = particles.reduce(.zero) {
+        let estimated: Double3 = particles.reduce(.zero) {
             $0 + ($1.xyz * weight)
         }
-        return coordinate
+        
+        self.delegate?.particleFilter(self, didEstimate: estimated)
+        
+        return estimated
     }
 
-    public func variance(
+    internal func variance(
         particles: [Particle],
         mean: Particle.Vector
     ) -> Double {
@@ -234,10 +209,14 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         
         // 1.0 / (n - 1.0)
         let weight = 1.0 / (Double(particles.count - 1) + 0.0001)
-        return particles.reduce(0.0) {
+        let variance: Double = particles.reduce(0.0) {
             let delta = $1.xyz.distance(to: mean)
             return $0 + ((delta * delta) * weight)
         }
+        
+        self.delegate?.particleFilter(self, didCalculateVariance: variance)
+        
+        return variance
     }
 
     // normal cumulative distribution function:
@@ -259,5 +238,55 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         let exponent = -((2.0 / .pi) * (delta * delta) / variance)
         let cdf = base * sqrt(1.0 - exp(exponent))
         return cdf
+    }
+}
+
+extension CPUParticleFilter: ParticleFilterProtocol {
+    public func filter(
+        particles: [Particle],
+        observations: [Observation],
+        model: Model,
+        control: Particle.Vector
+    ) -> ParticleFilterOutput {
+        assert(!particles.isEmpty)
+        
+        var particles = particles
+
+        // Predict particle movement based on motion model:
+        particles = self.predict(
+            particles: particles,
+            control: control,
+            model: model.motion
+        )
+
+        // Calculate normalized weights based on observation model:
+        particles = self.weight(
+            particles: particles,
+            observations: observations,
+            model: model.observation
+        )
+
+        // Check if resampling is necessary due to depletion:
+        let evaluation = self.evaluate(particles: particles, model: model.evaluation)
+        
+        // Resample particles if particle set has been impoverished:
+        if evaluation == .impoverished {
+            particles = self.resample(particles: particles)
+        }
+
+        // Calculate estimated coordinate:
+        let estimate = self.estimate(particles: particles)
+
+        // Calculate variance of particles:
+        let variance = self.variance(
+            particles: particles,
+            mean: estimate
+        )
+
+        return ParticleFilterOutput(
+            estimate: estimate,
+            particles: particles,
+            variance: variance
+        )
     }
 }
