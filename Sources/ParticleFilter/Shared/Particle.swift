@@ -7,6 +7,11 @@ public struct Particle: Equatable {
     public var xyz: Vector
     public var weight: Scalar
 
+    public init(xyz: Vector, weight: Scalar = 0.0) {
+        self.xyz = xyz
+        self.weight = weight
+    }
+    
     public func with(xyz: Vector) -> Particle {
         return Particle(xyz: xyz, weight: weight)
     }
