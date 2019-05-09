@@ -1,7 +1,7 @@
 public class StatefulParticleFilter<T: ParticleFilterProtocol> {
     private let particleFilter: T
     
-    public let model: Model
+    public var model: Model
     
     public private(set) var estimate: ParticleFilterEstimate? = nil
     public private(set) var particles: [Particle]
