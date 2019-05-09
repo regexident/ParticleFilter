@@ -186,19 +186,19 @@ public class CPUParticleFilter {
         return resampled
     }
 
-    internal func estimate(
+    internal func mean(
         particles: [Particle]
     ) -> Particle.Vector {
         assert(!particles.isEmpty)
         
         let weight = 1.0 / Double(particles.count)
-        let estimated: Double3 = particles.reduce(.zero) {
+        let mean: Double3 = particles.reduce(.zero) {
             $0 + ($1.xyz * weight)
         }
         
-        self.delegate?.particleFilter(self, didEstimate: estimated)
+        self.delegate?.particleFilter(self, didCalculateMean: mean)
         
-        return estimated
+        return mean
     }
 
     internal func variance(
@@ -275,18 +275,22 @@ extension CPUParticleFilter: ParticleFilterProtocol {
         }
 
         // Calculate estimated coordinate:
-        let estimate = self.estimate(particles: particles)
+        let mean = self.mean(particles: particles)
 
         // Calculate variance of particles:
         let variance = self.variance(
             particles: particles,
-            mean: estimate
+            mean: mean
+        )
+        
+        let estimate = ParticleFilterEstimate(
+            mean: mean,
+            variance: variance
         )
 
         return ParticleFilterOutput(
             estimate: estimate,
-            particles: particles,
-            variance: variance
+            particles: particles
         )
     }
 }

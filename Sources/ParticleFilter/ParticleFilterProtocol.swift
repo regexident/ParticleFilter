@@ -7,10 +7,14 @@ public enum ParticleFilterEvaluation {
     case impoverished
 }
 
-public struct ParticleFilterOutput {
-    let estimate: Double3
-    let particles: [Particle]
+public struct ParticleFilterEstimate {
+    let mean: Double3
     let variance: Double
+}
+
+public struct ParticleFilterOutput {
+    let estimate: ParticleFilterEstimate
+    let particles: [Particle]
 }
 
 public protocol ParticleFilterDelegate: class {
@@ -36,7 +40,7 @@ public protocol ParticleFilterDelegate: class {
 
     func particleFilter(
         _ particleFilter: ParticleFilterProtocol,
-        didEstimate coordinate: Double3
+        didCalculateMean mean: Double3
     )
 
     func particleFilter(
