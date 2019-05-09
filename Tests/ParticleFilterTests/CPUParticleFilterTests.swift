@@ -227,7 +227,7 @@ class CPUParticleFilterTests: XCTestCase {
     func test__resample__uniform() {
         let particleFilter = CPUParticleFilter()
 
-        struct ConstantDefaultSource: RandomSource {
+        struct ConstantUniformRandom: UniformRandom {
             typealias Value = Double
 
             let constant: Value
@@ -236,7 +236,7 @@ class CPUParticleFilterTests: XCTestCase {
                 self.constant = constant
             }
 
-            func next() -> Double {
+            func random() -> Double {
                 return constant
             }
         }
@@ -248,11 +248,11 @@ class CPUParticleFilterTests: XCTestCase {
             Particle(xyz: [3.0, 3.0, 3.0], weight: 1.0 / 5.0),
             Particle(xyz: [4.0, 4.0, 4.0], weight: 1.0 / 5.0),
         ]
-        let randomSource = ConstantDefaultSource(constant: 0.5)
+        let uniformRandom = ConstantUniformRandom(constant: 0.5)
 
         let resampled = particleFilter.resample(
             particles: particles,
-            randomSource: randomSource
+            uniformRandom: uniformRandom
         )
         let expected = particles
 
@@ -262,7 +262,7 @@ class CPUParticleFilterTests: XCTestCase {
     func test__resample__nonUniform() {
         let particleFilter = CPUParticleFilter()
 
-        struct ConstantDefaultSource: RandomSource {
+        struct ConstantUniformRandom: UniformRandom {
             typealias Value = Double
 
             let constant: Value
@@ -271,7 +271,7 @@ class CPUParticleFilterTests: XCTestCase {
                 self.constant = constant
             }
 
-            func next() -> Double {
+            func random() -> Double {
                 return constant
             }
         }
@@ -283,11 +283,11 @@ class CPUParticleFilterTests: XCTestCase {
             Particle(xyz: [3.0, 3.0, 3.0], weight: 0.0),
             Particle(xyz: [4.0, 4.0, 4.0], weight: 0.0),
         ]
-        let randomSource = ConstantDefaultSource(constant: 0.1)
+        let uniformRandom = ConstantUniformRandom(constant: 0.1)
 
         let resampled = particleFilter.resample(
             particles: particles,
-            randomSource: randomSource
+            uniformRandom: uniformRandom
         )
         let expected = [
             Particle(xyz: [0.0, 0.0, 0.0], weight: 1.0 / 5.0),
@@ -316,7 +316,7 @@ class CPUParticleFilterTests: XCTestCase {
         }
     }
 
-    func test__estimate() {
+    func test__mean() {
         let particleFilter = CPUParticleFilter()
 
         // Corners of a unit cube:
@@ -331,14 +331,14 @@ class CPUParticleFilterTests: XCTestCase {
             Particle(xyz: [1.0, 1.0, 1.0], weight: 1.0 / 8.0),
         ]
 
-        let estimated = particleFilter.estimate(particles: particles)
+        let mean = particleFilter.mean(particles: particles)
         // Center of a unit cube:
         let expected: Particle.Vector = [0.5, 0.5, 0.5]
 
-        XCTAssertNearEqual(estimated, expected, accuracy: 0.0001)
+        XCTAssertNearEqual(mean, expected, accuracy: 0.0001)
     }
 
-    func test__estimate__benchmark() {
+    func test__mean__benchmark() {
         let particleFilter = CPUParticleFilter()
 
         let particles: [Particle] = (0 ..< particleCount).map { i in
@@ -351,7 +351,7 @@ class CPUParticleFilterTests: XCTestCase {
         }
 
         measure {
-            _ = particleFilter.estimate(particles: particles)
+            _ = particleFilter.mean(particles: particles)
         }
     }
 

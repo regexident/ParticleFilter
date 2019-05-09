@@ -1,32 +1,4 @@
-import Darwin
-
-extension Double {
-    static func stdGaussianRandom() -> Double {
-        let a = Double.random(in: 0.0 ..< 1.0)
-        let b = Double.random(in: 0.0 ..< 1.0)
-        let c = Double.random(in: 0.0 ..< 1.0)
-
-        let d = abs(-2.0 * log(a))
-        let e = 2.0 * .pi * b
-
-        if c < 0.5 {
-            return sqrt(d) * sin(e)
-        } else {
-            return sqrt(d) * cos(e)
-        }
-    }
-
-    static func gaussianRandom(mean: Double, stdDev: Double) -> Double {
-        let stdRandom = stdGaussianRandom()
-        return mean + (stdRandom * stdDev)
-    }
-}
-
-internal protocol RandomSource {
-    associatedtype Value
-
-    func next() -> Value
-}
+import Foundation
 
 public class CPUParticleFilter {
     public weak var delegate: ParticleFilterDelegate? = nil
@@ -42,17 +14,37 @@ public class CPUParticleFilter {
     ) -> [Particle] {
         assert(!particles.isEmpty)
         
+        let gaussianRandom = DefaultGaussianRandom()
+        return self.predict(
+            particles: particles,
+            control: control,
+            model: model,
+            gaussianRandom: gaussianRandom
+        )
+    }
+    
+    internal func predict<T>(
+        particles: [Particle],
+        control: Particle.Vector,
+        model: MotionModel,
+        gaussianRandom: T
+    ) -> [Particle]
+        where T: GaussianRandom, T.Value == Double
+    {
+        assert(!particles.isEmpty)
+        
+        var gaussianRandom = gaussianRandom
         let stdDeviation = model.stdDeviation
         
         let predicted: [Particle] = particles.map { particle in
-            let noiseX = Double.gaussianRandom(mean: 0.0, stdDev: stdDeviation)
-            let noiseY = Double.gaussianRandom(mean: 0.0, stdDev: stdDeviation)
-            let noiseZ = Double.gaussianRandom(mean: 0.0, stdDev: stdDeviation)
+            let noiseX = gaussianRandom.random(mean: 0.0, stdDeviation: stdDeviation)
+            let noiseY = gaussianRandom.random(mean: 0.0, stdDeviation: stdDeviation)
+            let noiseZ = gaussianRandom.random(mean: 0.0, stdDeviation: stdDeviation)
             let noise = Double3(x: noiseX, y: noiseY, z: noiseZ)
-
+            
             let xyz = particle.xyz + noise + control
             let weight = particle.weight
-
+            
             return Particle(xyz: xyz, weight: weight)
         }
         
@@ -126,37 +118,23 @@ public class CPUParticleFilter {
     internal func resample(particles: [Particle]) -> [Particle] {
         assert(!particles.isEmpty)
         
-        struct DefaultSource: RandomSource {
-            typealias Value = Double
-
-            let range: Range<Value>
-
-            init(range: Range<Value>) {
-                self.range = range
-            }
-
-            func next() -> Double {
-                return Double.random(in: range)
-            }
-        }
-
-        let randomSource = DefaultSource(range: 0.0 ..< 1.0)
-
+        let uniformRandom = DefaultUniformRandom()
         return self.resample(
             particles: particles,
-            randomSource: randomSource
+            uniformRandom: uniformRandom
         )
     }
 
     // low-variance resampling, based on uniform importance sampling.
     internal func resample<T>(
         particles: [Particle],
-        randomSource: T
+        uniformRandom: T
     ) -> [Particle]
-        where T: RandomSource, T.Value == Double
+        where T: UniformRandom, T.Value == Double
     {
         assert(!particles.isEmpty)
         
+        var uniformRandom = uniformRandom
         var resampled: [Particle] = []
 
         let n = particles.count
@@ -164,7 +142,7 @@ public class CPUParticleFilter {
         let totalWeight = particles.reduce(0.0) { $0 + $1.weight }
         let stride = totalWeight / Double(n)
 
-        let offset = randomSource.next() * stride
+        let offset = uniformRandom.random() * stride
         var cursor = particles[0].weight
         var index = 0
 
