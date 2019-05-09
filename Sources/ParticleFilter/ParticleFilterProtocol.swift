@@ -8,13 +8,13 @@ public enum ParticleFilterEvaluation {
 }
 
 public struct ParticleFilterEstimate {
-    let mean: Double3
-    let variance: Double
+    public let mean: Double3
+    public let variance: Double
 }
 
 public struct ParticleFilterOutput {
-    let estimate: ParticleFilterEstimate
-    let particles: [Particle]
+    public let estimate: ParticleFilterEstimate
+    public let particles: [Particle]
 }
 
 public protocol ParticleFilterDelegate: class {
