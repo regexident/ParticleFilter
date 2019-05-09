@@ -1,22 +1,47 @@
-public struct ParticleFilter {
-    private let cpu: CPUParticleFilter
-    private let gpu: GPUParticleFilter? = nil
-
-    public init() {
-        self.cpu = CPUParticleFilter()
+public class StatefulParticleFilter<T: ParticleFilterProtocol> {
+    private let particleFilter: T
+    
+    public let model: Model
+    
+    public private(set) var estimate: ParticleFilterEstimate? = nil
+    public private(set) var particles: [Particle]
+    
+    public init(
+        particleFilter: T,
+        model: Model,
+        particles: [Particle]
+    ) {
+        self.particleFilter = particleFilter
+        self.model = model
+        self.particles = particles
+    }
+    
+    public func filter(
+        observations: [Observation],
+        control: Particle.Vector
+    ) -> ParticleFilterOutput {
+        let output = self.particleFilter.filter(
+            particles: self.particles,
+            observations: observations,
+            model: self.model,
+            control: control
+        )
+        
+        self.estimate = output.estimate
+        self.particles = output.particles
+        
+        return output
     }
 }
 
-extension ParticleFilter: ParticleFilterProtocol {
+extension StatefulParticleFilter: ParticleFilterProtocol {
     public func filter(
         particles: [Particle],
         observations: [Observation],
         model: Model,
         control: Particle.Vector
     ) -> ParticleFilterOutput {
-        let impl: ParticleFilterProtocol = self.gpu ?? self.cpu
-
-        return impl.filter(
+        return self.particleFilter.filter(
             particles: particles,
             observations: observations,
             model: model,
