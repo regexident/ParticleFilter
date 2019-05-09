@@ -77,6 +77,18 @@ iOSInjectionProject/
 
 # End of https://www.gitignore.io/api/swift
 
+# Created by https://www.gitignore.io/api/swiftpackagemanager
+# Edit at https://www.gitignore.io/?templates=swiftpackagemanager
+
+### SwiftPackageManager ###
+Packages
+.build/
+xcuserdata
+DerivedData/
+*.xcodeproj
+
+# End of https://www.gitignore.io/api/swiftpackagemanager
+
 # Created by https://www.gitignore.io/api/xcode
 # Edit at https://www.gitignore.io/?templates=xcode
 
@@ -115,6 +127,22 @@ DerivedData/
 
 # End of https://www.gitignore.io/api/xcode
 
+# Created by https://www.gitignore.io/api/visualstudiocode
+# Edit at https://www.gitignore.io/?templates=visualstudiocode
+
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+
+# End of https://www.gitignore.io/api/visualstudiocode
+
 # Created by https://www.gitignore.io/api/macos
 # Edit at https://www.gitignore.io/?templates=macos
 
@@ -147,19 +175,3 @@ Temporary Items
 .apdisk
 
 # End of https://www.gitignore.io/api/macos
-
-# Created by https://www.gitignore.io/api/visualstudiocode
-# Edit at https://www.gitignore.io/?templates=visualstudiocode
-
-### VisualStudioCode ###
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-### VisualStudioCode Patch ###
-# Ignore all local history of files
-.history
-
-# End of https://www.gitignore.io/api/visualstudiocode
