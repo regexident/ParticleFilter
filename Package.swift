@@ -19,7 +19,11 @@ let package = Package(
         .package(url: "https://github.com/mattt/Surge.git", .upToNextMajor(from: "2.0.0")),
     ],
     targets: [
-        .target(name: "particle_filter", dependencies: []),
+        .target(
+            name: "particle_filter",
+            dependencies: [
+            ]
+        ),
         .target(
             name: "ParticleFilter",
             dependencies: [
@@ -29,7 +33,9 @@ let package = Package(
         ),
         .testTarget(
             name: "ParticleFilterTests",
-            dependencies: ["ParticleFilter"]
+            dependencies: [
+                "ParticleFilter"
+            ]
         ),
     ]
 )
