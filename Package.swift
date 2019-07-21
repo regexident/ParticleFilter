@@ -12,29 +12,27 @@ let package = Package(
     products: [
         .library(
             name: "ParticleFilter",
-            targets: ["ParticleFilter"]
+            targets: [
+                "ParticleFilter",
+            ]
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/mattt/Surge.git", .upToNextMajor(from: "2.0.0")),
+        .package(url: "https://github.com/regexident/BayesFilter", .branch("master")),
+        .package(url: "https://github.com/jounce/Surge", .branch("master")),
     ],
     targets: [
         .target(
-            name: "particle_filter",
-            dependencies: [
-            ]
-        ),
-        .target(
             name: "ParticleFilter",
             dependencies: [
-                "particle_filter",
+                "BayesFilter",
                 "Surge",
             ]
         ),
         .testTarget(
             name: "ParticleFilterTests",
             dependencies: [
-                "ParticleFilter"
+                "ParticleFilter",
             ]
         ),
     ]

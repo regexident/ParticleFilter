@@ -1,51 +1,78 @@
-public class StatefulParticleFilter<T: ParticleFilterProtocol> {
-    private let particleFilter: T
-    
+import Foundation
+
+import BayesFilter
+
+public class ParticleFilter: ParticleFilterProtocol {
+    public typealias Observation = [LandmarkObservation<Double>]
+    public typealias Control = Particle.Location
+    public typealias Estimate = [Particle]
+
+    public typealias ParticleBuffer = [Particle]
+    public typealias ObservationBuffer = [Observation]
+
     public var model: Model
-    
+
     public private(set) var estimate: ParticleFilterEstimate? = nil
-    public private(set) var particles: [Particle]
-    
+    public private(set) var particles: ParticleBuffer
+
     public init(
-        particleFilter: T,
         model: Model,
-        particles: [Particle]
+        particles: ParticleBuffer
     ) {
-        self.particleFilter = particleFilter
+        assert(!particles.isEmpty)
+
         self.model = model
         self.particles = particles
     }
-    
-    public func filter(
-        observations: [Observation],
-        control: Particle.Vector
-    ) -> ParticleFilterOutput {
-        let output = self.particleFilter.filter(
-            particles: self.particles,
-            observations: observations,
-            model: self.model,
-            control: control
-        )
-        
-        self.estimate = output.estimate
-        self.particles = output.particles
-        
-        return output
-    }
-}
 
-extension StatefulParticleFilter: ParticleFilterProtocol {
-    public func filter(
-        particles: [Particle],
-        observations: [Observation],
-        model: Model,
-        control: Particle.Vector
-    ) -> ParticleFilterOutput {
-        return self.particleFilter.filter(
-            particles: particles,
-            observations: observations,
-            model: model,
-            control: control
+    public func predict(
+        control: Control
+    ) -> Estimate {
+        // Predict particle movement based on motion model:
+        let predictor = ParticlePredictor()
+
+        return predictor.predict(
+            particles: self.particles,
+            control: control,
+            model: self.model.motion
         )
+    }
+
+    public func update(
+        prediction: Estimate,
+        observation: Observation,
+        control: Control
+    ) -> Estimate {
+        assert(!prediction.isEmpty)
+
+        var particles = prediction
+        let model = self.model
+
+        // Calculate normalized weights based on observation model:
+        let weighter = ParticleWeighter()
+        particles = weighter.weight(
+            particles: particles,
+            observations: observation,
+            model: model.observation
+        )
+
+        // Check if resampling is necessary due to depletion/impoverishment:
+        let evaluator = ParticleEvaluator()
+        let evaluation = evaluator.evaluate(
+            particles: particles,
+            model: model.evaluation
+        )
+
+        // Resample particles if particle set has been depleted/impoverished:
+        let resampler = ParticleResampler()
+        if evaluation == .impoverished {
+            particles = resampler.resample(
+                particles: particles
+            )
+        }
+
+        self.particles = particles
+
+        return particles
     }
 }

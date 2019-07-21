@@ -1,22 +1,24 @@
-import simd
+import Darwin
+
+import Surge
 
 public struct Particle: Equatable {
     public typealias Scalar = Double
-    public typealias Vector = SIMD3<Double>
+    public typealias Location = Vector<Scalar>
 
-    public var xyz: Vector
+    public var location: Location
     public var weight: Scalar
 
-    public init(xyz: Vector, weight: Scalar = 0.0) {
-        self.xyz = xyz
+    public init(location: Location, weight: Scalar = 0.0) {
+        self.location = location
         self.weight = weight
     }
     
-    public func with(xyz: Vector) -> Particle {
-        return Particle(xyz: xyz, weight: weight)
+    public func with(location: Location) -> Particle {
+        return Particle(location: location, weight: weight)
     }
 
     public func with(weight: Scalar) -> Particle {
-        return Particle(xyz: xyz, weight: weight)
+        return Particle(location: self.location, weight: weight)
     }
 }
