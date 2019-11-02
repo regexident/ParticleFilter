@@ -5,10 +5,6 @@ import PackageDescription
 
 let package = Package(
     name: "ParticleFilter",
-    platforms: [
-        .iOS(.v8),
-        .macOS(.v10_11),
-    ],
     products: [
         .library(
             name: "ParticleFilter",
