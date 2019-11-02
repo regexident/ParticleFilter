@@ -166,7 +166,7 @@ extension MultiModalParticleUpdater: Estimatable {
     public typealias Estimate = ParticleEstimate
 }
 
-extension MultiModalParticleUpdater: BayesUpdaterProtocol
+extension MultiModalParticleUpdater: BayesUpdaterProtocol, ParticleUpdaterProtocol
     where ObservationModel: ParticleObservationModel
 {
     public func updated(

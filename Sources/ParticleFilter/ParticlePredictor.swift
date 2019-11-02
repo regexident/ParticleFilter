@@ -66,7 +66,7 @@ extension ParticlePredictor: Estimatable {
     public typealias Estimate = ParticleEstimate
 }
 
-extension ParticlePredictor: BayesPredictorProtocol
+extension ParticlePredictor: BayesPredictorProtocol, ParticlePredictorProtocol
     where MotionModel: ParticleMotionModel
 {
     public func predicted(estimate: Estimate) -> Estimate {
@@ -76,7 +76,7 @@ extension ParticlePredictor: BayesPredictorProtocol
     }
 }
 
-extension ParticlePredictor: ControllableBayesPredictorProtocol
+extension ParticlePredictor: ControllableBayesPredictorProtocol, ControllableParticlePredictorProtocol
     where MotionModel: ControllableParticleMotionModel
 {
     public func predicted(estimate: Estimate, control: Control) -> Estimate {

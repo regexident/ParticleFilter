@@ -61,7 +61,7 @@ extension ParticleUpdater: Estimatable {
     public typealias Estimate = ParticleEstimate
 }
 
-extension ParticleUpdater: BayesUpdaterProtocol
+extension ParticleUpdater: BayesUpdaterProtocol, ParticleUpdaterProtocol
     where ObservationModel: ParticleObservationModel
 {
     public func updated(
