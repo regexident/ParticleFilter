@@ -15,6 +15,8 @@ public protocol ControllableParticlePredictorProtocol: ControllableBayesPredicto
     associatedtype MotionModel: ControllableParticleMotionModel
 }
 
+public typealias StatefulParticlePredictor<MotionModel> = Estimateful<ParticlePredictor<MotionModel>>
+
 public class ParticlePredictor<MotionModel> {
     /// Motion model (used for prediction).
     public var motionModel: BrownianMotionModel<MotionModel>

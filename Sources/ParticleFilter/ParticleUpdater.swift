@@ -11,8 +11,9 @@ public protocol ParticleUpdaterProtocol: BayesUpdaterProtocol {
     associatedtype ObservationModel: ParticleObservationModel
 }
 
-private struct UniformModel: Equatable, Hashable {
-}
+private struct UniformModel: Equatable, Hashable {}
+
+public typealias StatefulParticleUpdater<ObservationModel> = Estimateful<ParticleUpdater<ObservationModel>>
 
 public class ParticleUpdater<ObservationModel> {
     public var observationModel: ObservationModel {

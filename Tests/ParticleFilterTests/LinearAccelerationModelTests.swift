@@ -116,8 +116,7 @@ final class LinearAccelerationModelTests: XCTestCase {
             return observation + noise
         }
 
-        var particleFilter = ParticleFilter(
-            estimate: estimate,
+        let particleFilter = ParticleFilter(
             predictor: ParticlePredictor(
                 motionModel: self.motionModel,
                 brownianNoise: self.brownianNoise
@@ -129,10 +128,15 @@ final class LinearAccelerationModelTests: XCTestCase {
             )
         )
 
+        var statefulParticleFilter = StatefulParticleFilter(
+            estimate: estimate,
+            wrapping: particleFilter
+        )
+
         let filteredStates: [Vector<Double>] = Swift.zip(controls, observations).map { argument in
             let (control, observation) = argument
-            particleFilter.filter(control: control, observation: observation)
-            return particleFilter.estimate.mean
+            statefulParticleFilter.filter(control: control, observation: observation)
+            return statefulParticleFilter.estimate.mean
         }
 
 //        self.printSheetAndFail(
@@ -159,7 +163,7 @@ final class LinearAccelerationModelTests: XCTestCase {
             return Vector([x, y])
         }
 
-        XCTAssertLessThan(similarity, 5.0)
+        XCTAssertLessThan(similarity, 7.5)
     }
 
     func testVariableModel() {
@@ -171,7 +175,7 @@ final class LinearAccelerationModelTests: XCTestCase {
             return Vector([x, y])
         }
 
-        XCTAssertLessThan(similarity, 5.0)
+        XCTAssertLessThan(similarity, 7.5)
     }
 
     private func printSheetAndFail(

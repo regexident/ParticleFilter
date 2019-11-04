@@ -7,6 +7,8 @@ import StateSpaceModel
 
 // swiftlint:disable all identifier_name
 
+public typealias StatefulMultiModalParticleUpdater<Model: Hashable, ObservationModel> = Estimateful<MultiModalParticleUpdater<Model, ObservationModel>>
+
 public class MultiModalParticleUpdater<Model, ObservationModel>
     where Model: Hashable
 {

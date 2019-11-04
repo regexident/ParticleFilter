@@ -136,8 +136,7 @@ final class LandmarkLocalizationTests: XCTestCase {
             }
         }
 
-        var particleFilter = ParticleFilter(
-            estimate: estimate,
+        let particleFilter = ParticleFilter(
             predictor: ParticlePredictor(
                 motionModel: self.motionModel,
                 brownianNoise: self.brownianNoise
@@ -150,17 +149,18 @@ final class LandmarkLocalizationTests: XCTestCase {
             }
         )
 
+        var statefulParticleFilter = StatefulParticleFilter(
+            estimate: estimate,
+            wrapping: particleFilter
+        )
+
         let filteredStates: [Vector<Double>] = Swift.zip(controls, observations).map { argument in
             let (control, observations) = argument
-
-            particleFilter.predict(
-                control: control
-            )
-            particleFilter.batchUpdate(
+            statefulParticleFilter.batchFilter(
+                control: control,
                 observations: observations
             )
-
-            return particleFilter.estimate.mean
+            return statefulParticleFilter.estimate.mean
         }
 
 //        self.printSheetAndFail(

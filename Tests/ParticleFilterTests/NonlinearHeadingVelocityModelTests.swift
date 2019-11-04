@@ -108,8 +108,7 @@ final class NonlinearHeadingVelocityModelTests: XCTestCase {
             return observation + noise
         }
 
-        var particleFilter = ParticleFilter(
-            estimate: estimate,
+        let particleFilter = ParticleFilter(
             predictor: ParticlePredictor(
                 motionModel: self.motionModel,
                 brownianNoise: self.brownianNoise
@@ -121,10 +120,15 @@ final class NonlinearHeadingVelocityModelTests: XCTestCase {
             )
         )
 
+        var statefulParticleFilter = StatefulParticleFilter(
+            estimate: estimate,
+            wrapping: particleFilter
+        )
+
         let filteredStates: [Vector<Double>] = Swift.zip(controls, observations).map { argument in
             let (control, observation) = argument
-            particleFilter.filter(control: control, observation: observation)
-            return particleFilter.estimate.mean
+            statefulParticleFilter.filter(control: control, observation: observation)
+            return statefulParticleFilter.estimate.mean
         }
 
 //        self.printSheetAndFail(
