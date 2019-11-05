@@ -79,7 +79,7 @@ extension Vector where Scalar == Float {
         // Generate an n-dimensional vector `x` of normal deviates (it suffices to use N(0, 1),
         // although in fact the choice of the variance is arbitrary), x = (x1, x2,... xn):
         let vector = Vector((0..<dimensions).map { _ in
-            Scalar.normalRandom(mean: 0.0, stdDeviation: 1.0, using: &generator)
+            Scalar.randomNormal(mu: 0.0, sigma: 1.0, using: &generator)
         })
         
         // Now calculate the "radius" `r` of this point:
@@ -90,7 +90,7 @@ extension Vector where Scalar == Float {
         
         // Create normal-distributed noise vector with given `stdDeviation` around the origin:
         let noise = Vector((0..<dimensions).map { _ in
-            Scalar.normalRandom(mean: 0.0, stdDeviation: stdDeviation, using: &generator)
+            Scalar.randomNormal(mu: 0.0, sigma: 1.0, using: &generator)
         })
         
         // Scale up n-sphere unit vector and add noise:
@@ -104,12 +104,12 @@ extension Vector where Scalar == Double {
     /// - center: `observation.xyz`
     /// and a guassian distribution on radius
     /// with std-deviation of `stdDeviation`.
-    public func sample(
+    public func sampleSphere(
         radius: Scalar,
         stdDeviation: Scalar
     ) -> Vector<Scalar> {
         var generator = SystemRandomNumberGenerator()
-        return self.sample(
+        return self.sampleSphere(
             radius: radius,
             stdDeviation: stdDeviation,
             using: &generator
@@ -121,7 +121,7 @@ extension Vector where Scalar == Double {
     /// - center: `observation.xyz`
     /// and a guassian distribution on radius
     /// with std-deviation of `stdDeviation`.
-    public func sample<T>(
+    public func sampleSphere<T>(
         radius: Scalar,
         stdDeviation: Scalar,
         using generator: inout T
@@ -139,7 +139,7 @@ extension Vector where Scalar == Double {
         // Generate an n-dimensional vector `x` of normal deviates (it suffices to use N(0, 1),
         // although in fact the choice of the variance is arbitrary), x = (x1, x2,... xn):
         let vector = Vector((0..<dimensions).map { _ in
-            Scalar.normalRandom(mean: 0.0, stdDeviation: 1.0, using: &generator)
+            Scalar.randomNormal(mu: 0.0, sigma: 1.0, using: &generator)
         })
         
         // Now calculate the "radius" `r` of this point:
@@ -150,7 +150,7 @@ extension Vector where Scalar == Double {
         
         // Create normal-distributed noise vector with given `stdDeviation` around the origin:
         let noise = Vector((0..<dimensions).map { _ in
-            Scalar.normalRandom(mean: 0.0, stdDeviation: stdDeviation, using: &generator)
+            Scalar.randomNormal(mu: 0.0, sigma: stdDeviation, using: &generator)
         })
         
         // Scale up n-sphere unit vector and add noise:

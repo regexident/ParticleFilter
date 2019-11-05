@@ -5,14 +5,14 @@ import XCTest
 class CollectionTests: XCTestCase {
     // Corners of a unit cube:
     static let particles: [Particle] = [
-        Particle(location: [0.0, 0.0, 0.0], weight: 1.0),
-        Particle(location: [0.0, 0.0, 1.0], weight: 2.0),
-        Particle(location: [0.0, 1.0, 0.0], weight: 3.0),
-        Particle(location: [0.0, 1.0, 1.0], weight: 4.0),
-        Particle(location: [1.0, 0.0, 0.0], weight: 5.0),
-        Particle(location: [1.0, 0.0, 1.0], weight: 6.0),
-        Particle(location: [1.0, 1.0, 0.0], weight: 7.0),
-        Particle(location: [1.0, 1.0, 1.0], weight: 8.0),
+        Particle(state: [0.0, 0.0, 0.0], weight: 1.0),
+        Particle(state: [0.0, 0.0, 1.0], weight: 2.0),
+        Particle(state: [0.0, 1.0, 0.0], weight: 3.0),
+        Particle(state: [0.0, 1.0, 1.0], weight: 4.0),
+        Particle(state: [1.0, 0.0, 0.0], weight: 5.0),
+        Particle(state: [1.0, 0.0, 1.0], weight: 6.0),
+        Particle(state: [1.0, 1.0, 0.0], weight: 7.0),
+        Particle(state: [1.0, 1.0, 1.0], weight: 8.0),
     ]
     
     func test__mean() {
@@ -20,7 +20,7 @@ class CollectionTests: XCTestCase {
         let mean = particles.mean()
         
         // Center of a unit cube:
-        let expected: Particle.Location = [0.5, 0.5, 0.5]
+        let expected: Particle.State = [0.5, 0.5, 0.5]
         
         XCTAssertEqual(mean, expected, accuracy: 0.0001)
     }
@@ -30,7 +30,7 @@ class CollectionTests: XCTestCase {
         let mean = particles.mean(weighted: true)
         
         // Center of a unit cube:
-        let expected: Particle.Location = [0.7222, 0.6111, 0.5555]
+        let expected: Particle.State = [0.7222, 0.6111, 0.5555]
         
         XCTAssertEqual(mean, expected, accuracy: 0.0001)
     }
@@ -41,7 +41,7 @@ class CollectionTests: XCTestCase {
         let particles: [Particle] = (0 ..< particleCount).map { i in
             let f = 1.0 / Double(i)
             return Particle(
-                location: [0.0 * f, 1.0 * f, 2.0 * f],
+                state: [0.0 * f, 1.0 * f, 2.0 * f],
                 weight: 1.0
             )
         }
@@ -70,12 +70,12 @@ class CollectionTests: XCTestCase {
     func test__variance__benchmark() {
         let particleCount = 1000
         
-        let mean: Particle.Location = [0.0, 0.0, 0.0]
+        let mean: Particle.State = [0.0, 0.0, 0.0]
         
         let particles: [Particle] = (0 ..< particleCount).map { i in
-            let f = 1.0 / Particle.Scalar(i)
+            let f = 1.0 / Double(i)
             return Particle(
-                location: [0.0 * f, 1.0 * f, 2.0 * f],
+                state: [0.0 * f, 1.0 * f, 2.0 * f],
                 weight: 1.0
             )
         }

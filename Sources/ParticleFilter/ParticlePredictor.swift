@@ -1,66 +1,88 @@
 import Foundation
 
 import Surge
+import BayesFilter
+import StateSpace
+import StateSpaceModel
 
-internal struct ParticlePredictor: ParticlePredictorProtocol {
-    internal typealias Control = Particle.Location
-    internal typealias ParticleBuffer = [Particle]
-    
-    internal func predict(
-        particles: ParticleBuffer,
-        control: Control,
-        model: MotionModel
-    ) -> ParticleBuffer {
-        var generator = SystemRandomNumberGenerator()
-        return self.predict(
-            particles: particles,
-            control: control,
-            model: model,
-            using: &generator
+// swiftlint:disable all identifier_name
+
+public protocol ParticlePredictorProtocol: BayesPredictorProtocol {
+    associatedtype MotionModel: ParticleMotionModel
+}
+
+public protocol ControllableParticlePredictorProtocol: ControllableBayesPredictorProtocol {
+    associatedtype MotionModel: ControllableParticleMotionModel
+}
+
+public class ParticlePredictor<MotionModel> {
+    /// Motion model (used for prediction).
+    public var motionModel: BrownianMotionModel<MotionModel>
+
+    public init(
+        motionModel: MotionModel,
+        brownianNoise: Vector<Double>
+    ) {
+        self.motionModel = BrownianMotionModel(
+            motionModel: motionModel,
+            stdDeviations: brownianNoise
         )
     }
-    
-    internal func predict<T>(
-        particles: ParticleBuffer,
-        control: Control,
-        model: MotionModel,
-        using generator: inout T
-    ) -> ParticleBuffer
-        where T: RandomNumberGenerator
-    {
-        assert(!particles.isEmpty)
-        
-        typealias Scalar = Particle.Scalar
-        
-        var generator = generator
-        let stdDeviation = model.stdDeviation
-        
-        let predicted: ParticleBuffer = particles.map { particle in
-            let dimensions = particle.location.dimensions
 
-            // FIXME: Migrate to Surge's own randomization API, once available:
-            let noise = Vector((0..<dimensions).map { _ in
-                Scalar.normalRandom(
-                    mean: 0.0,
-                    stdDeviation: stdDeviation,
-                    using: &generator
-                )
-            })
+    /// Predicts next state using current state and control and calculates probability estimate.
+    ///
+    /// Implements the following literature formulas:
+    ///
+    /// ```
+    /// x'(k) = A * x(k-1) + B * u(k).
+    /// ```
+    private func predicted(
+        estimate: Estimate,
+        applyModel: (Vector<Double>) -> Vector<Double>
+    ) -> Estimate {
+        let states = estimate.states.map { applyModel($0) }
+        return ParticleEstimate(
+            states: states,
+            weights: estimate.weights
+        )
+    }
+}
 
-            /// The following optimizied code is equivalent to:
-            /// ```
-            /// let location = particle.location + noise + control
-            /// ```
+extension ParticlePredictor: DimensionsValidatable {
+    public func validate(for dimensions: DimensionsProtocol) throws {
+        try self.motionModel.validate(for: dimensions)
+    }
+}
 
-            var location = particle.location
-            location += noise
-            location += control
+extension ParticlePredictor: Statable {
+    public typealias State = Vector<Double>
+}
 
-            let weight = particle.weight
-            
-            return Particle(location: location, weight: weight)
+extension ParticlePredictor: Controllable {
+    public typealias Control = Vector<Double>
+}
+
+extension ParticlePredictor: Estimatable {
+    public typealias Estimate = ParticleEstimate
+}
+
+extension ParticlePredictor: BayesPredictorProtocol
+    where MotionModel: ParticleMotionModel
+{
+    public func predicted(estimate: Estimate) -> Estimate {
+        return self.predicted(estimate: estimate) { (x: Vector<Double>) in
+            return self.motionModel.apply(state: x)
         }
-        
-        return predicted
+    }
+}
+
+extension ParticlePredictor: ControllableBayesPredictorProtocol
+    where MotionModel: ControllableParticleMotionModel
+{
+    public func predicted(estimate: Estimate, control: Control) -> Estimate {
+        let u = control
+        return self.predicted(estimate: estimate) { x in
+            return self.motionModel.apply(state: x, control: u)
+        }
     }
 }

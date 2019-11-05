@@ -6,7 +6,7 @@
         "repositoryURL": "https://github.com/regexident/BayesFilter",
         "state": {
           "branch": "master",
-          "revision": "8c9b7645d0ccd41190a39bb6834ddee54e6a2687",
+          "revision": "b46b81a9ac14320a7483d44bccee7d8e48560609",
           "version": null
         }
       },
@@ -15,7 +15,7 @@
         "repositoryURL": "https://github.com/regexident/StateSpace",
         "state": {
           "branch": "master",
-          "revision": "233cf3931e90b7d07dae8209f94a83e94aea19ec",
+          "revision": "2a644e5916b2a5047cd2b35cdf997f1f198f4a07",
           "version": null
         }
       },
@@ -24,7 +24,7 @@
         "repositoryURL": "https://github.com/regexident/StateSpaceModel",
         "state": {
           "branch": "master",
-          "revision": "98d4adc42bd1643de47132a82d0cb3eb35f1319c",
+          "revision": "308465bca7928b489745c0f2b114bd4b01edc7eb",
           "version": null
         }
       },
@@ -33,7 +33,7 @@
         "repositoryURL": "https://github.com/jounce/Surge",
         "state": {
           "branch": "master",
-          "revision": "2f35e097244c1c437ac9862fdd30b82f266c7ded",
+          "revision": "844fd175cfc18cf36e6f1a6606d29d5e61caddd8",
           "version": null
         }
       }

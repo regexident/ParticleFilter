@@ -7,7 +7,7 @@ extension Collection where Element == Particle {
     ///
     /// - Parameters:
     ///   - weighted: Whether to consider individual particle weights.
-    public func mean(weighted: Bool = false) -> Particle.Location {
+    public func mean(weighted: Bool = false) -> Particle.State {
         assert(!self.isEmpty)
         
         // https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Mathematical_definition
@@ -18,13 +18,13 @@ extension Collection where Element == Particle {
         
         var totalWeight: Double = 0.0
         let uniformWeight = 1.0 / Double(self.count)
-        let dimensions = firstParticle.location.dimensions
+        let dimensions = firstParticle.state.dimensions
         var mean = Vector(dimensions: dimensions, repeatedValue: 0.0)
         
         for particle in self {
             let weight = weighted ? particle.weight : uniformWeight
             
-            mean += weight * particle.location
+            mean += weight * particle.state
             totalWeight += weight
         }
         
@@ -36,9 +36,9 @@ extension Collection where Element == Particle {
     /// - Parameters
     ///   - mean: The mean to calculate the variance from.
     public func variance(
-        around mean: Particle.Location,
+        around mean: Particle.State,
         weighted: Bool = false
-    ) -> Particle.Location {
+    ) -> Particle.State {
         assert(!self.isEmpty)
         
         // https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_variance
@@ -50,7 +50,7 @@ extension Collection where Element == Particle {
         
         for particle in self {
             let weight = weighted ? particle.weight : uniformWeight
-            let delta = particle.location - mean
+            let delta = particle.state - mean
             
             variance += weight * (delta .* delta)
             totalWeight += weight

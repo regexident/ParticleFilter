@@ -19,6 +19,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/regexident/BayesFilter", .branch("master")),
+        .package(url: "https://github.com/regexident/StateSpaceModel", .branch("master")),
         .package(url: "https://github.com/jounce/Surge", .branch("master")),
     ],
     targets: [
@@ -26,6 +27,7 @@ let package = Package(
             name: "ParticleFilter",
             dependencies: [
                 "BayesFilter",
+                "StateSpaceModel",
                 "Surge",
             ]
         ),
