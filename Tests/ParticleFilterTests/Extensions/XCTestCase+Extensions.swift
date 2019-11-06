@@ -23,7 +23,7 @@ extension XCTestCase {
         
         for control in controls {
             state = model.apply(state: state, control: control)
-            let standardNoise: Vector<Double> = Vector(gaussianRandom: state.dimensions)
+            let standardNoise: Vector<Double> = Vector.randomNormal(count: state.dimensions)
             let noise: Vector<Double> = covariance * standardNoise
             signal.append(state + noise)
         }
@@ -49,7 +49,7 @@ extension XCTestCase {
 
         for _ in 0..<count {
             state = model.apply(state: state)
-            let standardNoise: Vector<Double> = Vector(gaussianRandom: state.dimensions)
+            let standardNoise: Vector<Double> = Vector.randomNormal(count: state.dimensions)
             let noise: Vector<Double> = covariance * standardNoise
             signal.append(state + noise)
         }

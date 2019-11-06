@@ -129,7 +129,7 @@ final class LandmarkLocalizationTests: XCTestCase {
             landmarks.map { landmark in
                 let observationModel = self.observationModel(landmark: landmark)
                 let observation: Vector<Double> = observationModel.apply(state: state)
-                let standardNoise: Vector<Double> = Vector(gaussianRandom: self.dimensions.observation)
+                let standardNoise: Vector<Double> = Vector.randomNormal(count: self.dimensions.observation)
                 let noise: Vector<Double> = self.observationNoise * standardNoise
                 let noisyObservation = observation + noise
                 return MultiModal(model: landmark, value: noisyObservation)
