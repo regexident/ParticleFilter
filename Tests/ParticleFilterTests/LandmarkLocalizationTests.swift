@@ -62,28 +62,40 @@ final class LandmarkLocalizationTests: XCTestCase {
         }
     }
 
-    lazy var processNoise: Matrix<Double> = {
-        let t = self.time
-        let accel = 0.25 // max expected acceleration in m/sec^2
-        let qs: Matrix<Double> = [
-            [accel * 0.5 * t * t], // translation in m (double-integrated acceleration)
-            [accel * 0.5 * t * t], // translation in m (double-integrated acceleration)
-            [accel * t], // velocity in m/s (integrated acceleration)
-            [accel * t], // velocity in m/s (integrated acceleration)
+    lazy var processNoiseStdDeviations: Vector<Double> = {
+        let acceleration = 0.25 // max expected acceleration in m/sec^2
+        let time = self.time
+        return [
+            acceleration * 0.5 * time * time, // translation in m (double-integrated acceleration)
+            acceleration * 0.5 * time * time, // translation in m (double-integrated acceleration)
+            acceleration * time, // velocity in m/s (integrated acceleration)
+            acceleration * time, // velocity in m/s (integrated acceleration)
         ]
-        return pow((qs * transpose(qs)), 2.0)
     }()
 
-    lazy var observationNoise: Matrix<Double> = .diagonal(
-        rows: self.dimensions.observation,
-        columns: self.dimensions.observation,
-        repeatedValue: 0.5
-    )
+    lazy var processNoiseCovariance: Matrix<Double> = {
+        let variance = pow(self.processNoiseStdDeviations, 2.0)
+        return Matrix.diagonal(
+            rows: self.dimensions.state,
+            columns: self.dimensions.state,
+            scalars: variance
+        )
+    }()
 
-    lazy var brownianNoise: Vector<Double> = .init(
-        dimensions: self.dimensions.state,
-        repeatedValue: 0.1
-    )
+    lazy var observationNoiseStdDeviations: Vector<Double> = {
+        return [
+            2.0, // distance
+        ]
+    }()
+
+    lazy var observationNoiseCovariance: Matrix<Double> = {
+        let variance = pow(self.observationNoiseStdDeviations, 2.0)
+        return Matrix.diagonal(
+            rows: self.dimensions.observation,
+            columns: self.dimensions.observation,
+            scalars: variance
+        )
+    }()
 
     let stdDeviation: Double = 1.0
     let threshold: Double = 0.5
@@ -122,7 +134,7 @@ final class LandmarkLocalizationTests: XCTestCase {
             initial: initialState,
             controls: controls,
             model: self.motionModel,
-            processNoise: self.processNoise
+            processNoise: self.processNoiseCovariance
         )
 
         let observations: [[MultiModal<Landmark, Vector<Double>>]] = states.map { state in
@@ -130,7 +142,7 @@ final class LandmarkLocalizationTests: XCTestCase {
                 let observationModel = self.observationModel(landmark: landmark)
                 let observation: Vector<Double> = observationModel.apply(state: state)
                 let standardNoise: Vector<Double> = Vector.randomNormal(count: self.dimensions.observation)
-                let noise: Vector<Double> = self.observationNoise * standardNoise
+                let noise: Vector<Double> = self.observationNoiseCovariance * standardNoise
                 let noisyObservation = observation + noise
                 return MultiModal(model: landmark, value: noisyObservation)
             }
@@ -139,7 +151,7 @@ final class LandmarkLocalizationTests: XCTestCase {
         let particleFilter = ParticleFilter(
             predictor: ParticlePredictor(
                 motionModel: self.motionModel,
-                brownianNoise: self.brownianNoise
+                processNoise: self.processNoiseStdDeviations
             ),
             updater: MultiModalParticleUpdater(
                 stdDeviation: self.stdDeviation,
