@@ -23,11 +23,11 @@ public class ParticlePredictor<MotionModel> {
 
     public init(
         motionModel: MotionModel,
-        brownianNoise: Vector<Double>
+        processNoise: Vector<Double>
     ) {
         self.motionModel = BrownianMotionModel(
             motionModel: motionModel,
-            stdDeviations: brownianNoise
+            stdDeviations: processNoise
         )
     }
 
