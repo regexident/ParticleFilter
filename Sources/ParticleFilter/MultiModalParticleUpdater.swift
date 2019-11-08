@@ -12,7 +12,7 @@ public typealias StatefulMultiModalParticleUpdater<Model: Hashable, ObservationM
 public class MultiModalParticleUpdater<Model, ObservationModel>
     where Model: Hashable
 {
-    public var stdDeviation: Double
+    public var observationNoise: Vector<Double>
     public var threshold: Double
 
     public var observationModels: [Model: ObservationModel] = [:]
@@ -20,13 +20,13 @@ public class MultiModalParticleUpdater<Model, ObservationModel>
     public var closure: (Model) -> ObservationModel
 
     public convenience init(
-        stdDeviation: Double,
+        observationNoise: Vector<Double>,
         threshold: Double,
         closure: @escaping (Model) -> ObservationModel
     ) {
         let generator = SystemRandomNumberGenerator()
         self.init(
-            stdDeviation: stdDeviation,
+            observationNoise: observationNoise,
             threshold: threshold,
             generator: generator,
             closure: closure
@@ -34,7 +34,7 @@ public class MultiModalParticleUpdater<Model, ObservationModel>
     }
 
     public init<T>(
-        stdDeviation: Double,
+        observationNoise: Vector<Double>,
         threshold: Double,
         generator: T,
         closure: @escaping (Model) -> ObservationModel
@@ -42,7 +42,7 @@ public class MultiModalParticleUpdater<Model, ObservationModel>
     where
         T: RandomNumberGenerator
     {
-        self.stdDeviation = stdDeviation
+        self.observationNoise = observationNoise
         self.threshold = threshold
         self.generator = AnyRandomNumberGenerator(generator)
         self.closure = closure
@@ -65,22 +65,25 @@ extension MultiModalParticleUpdater
     internal static func weight<S>(
         states: [Vector<Double>],
         observations: S,
-        stdDeviation: Double,
+        observationNoise: Vector<Double>,
         particleObservation: (State, Model) -> Vector<Double>
     ) -> [Double]
         where S : Sequence, S.Element == Observation
     {
         assert(!states.isEmpty)
         let cdf = NormalCumulativeDistributionFunction()
-        let variance = stdDeviation * stdDeviation
+        let observationVariances = pow(observationNoise, 2.0)
         var totalWeight: Double = 0.000001 // non-zero to avoid divide by zero
         let weights: [Double] = states.map { state in
             let weight = observations.reduce(1.0) { probability, observation in
                 let modelObservation = observation.value
                 let particleObservation = particleObservation(state, observation.model)
-                let delta = modelObservation.distance(to: particleObservation)
-                let cdf = cdf.evaluate(mean: 0.0, variance: variance, value: delta)
-                return probability * (1.0 - cdf)
+                let observationErrors = modelObservation - particleObservation
+                let absoluteObservationErrors = Vector(abs(observationErrors.scalars))
+                let partialProbabilities = Swift.zip(observationVariances, absoluteObservationErrors).map { variance, error in
+                    1.0 - cdf.evaluate(mean: 0.0, variance: variance, value: error)
+                }
+                return partialProbabilities.reduce(probability, *)
             }
             totalWeight += weight
             return weight
@@ -216,7 +219,7 @@ extension MultiModalParticleUpdater: BayesUpdaterProtocol, ParticleUpdaterProtoc
         let weights = type(of: self).weight(
             states: states,
             observations: observations,
-            stdDeviation: self.stdDeviation
+            observationNoise: self.observationNoise
         ) { state, model in
             self.withObservationModel(for: model) { model in
                 model.apply(state: state)

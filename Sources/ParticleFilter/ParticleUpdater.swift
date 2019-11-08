@@ -20,8 +20,8 @@ public class ParticleUpdater<ObservationModel> {
         self.multiModal.observationModels[UniformModel()]!
     }
 
-    public var stdDeviation: Double {
-        self.multiModal.stdDeviation
+    public var observationNoise: Vector<Double> {
+        self.multiModal.observationNoise
     }
 
     public var threshold: Double {
@@ -32,13 +32,13 @@ public class ParticleUpdater<ObservationModel> {
 
     public convenience init(
         observationModel: ObservationModel,
-        stdDeviation: Double,
+        observationNoise: Vector<Double>,
         threshold: Double
     ) {
         let generator = SystemRandomNumberGenerator()
         self.init(
             observationModel: observationModel,
-            stdDeviation: stdDeviation,
+            observationNoise: observationNoise,
             threshold: threshold,
             generator: generator
         )
@@ -46,7 +46,7 @@ public class ParticleUpdater<ObservationModel> {
 
     public init<T>(
         observationModel: ObservationModel,
-        stdDeviation: Double,
+        observationNoise: Vector<Double>,
         threshold: Double,
         generator: T
     )
@@ -54,7 +54,7 @@ public class ParticleUpdater<ObservationModel> {
         T: RandomNumberGenerator
     {
         self.multiModal = MultiModalParticleUpdater(
-            stdDeviation: stdDeviation,
+            observationNoise: observationNoise,
             threshold: threshold,
             generator: generator
         ) { model in
