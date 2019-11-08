@@ -69,8 +69,8 @@ final class NonlinearVelocityYawModelTests: XCTestCase {
 
     lazy var observationNoiseStdDeviations: Vector<Double> = {
         return [
-            2.0, // position x
-            2.0, // position y
+            1.0, // position x
+            1.0, // position y
         ]
     }()
 
@@ -137,7 +137,7 @@ final class NonlinearVelocityYawModelTests: XCTestCase {
             ),
             updater: ParticleUpdater(
                 observationModel: self.observationModel,
-                stdDeviation: self.stdDeviation,
+                observationNoise: self.observationNoiseStdDeviations,
                 threshold: self.threshold,
                 generator: generator
             )
@@ -178,7 +178,7 @@ final class NonlinearVelocityYawModelTests: XCTestCase {
             return Vector([velocity, yaw])
         }
 
-        XCTAssertEqual(similarity, 0.8, accuracy: 0.1)
+        XCTAssertEqual(similarity, 0.2, accuracy: 0.1)
     }
 
     func testVariableModel() {
@@ -190,7 +190,7 @@ final class NonlinearVelocityYawModelTests: XCTestCase {
             return Vector([velocity, yaw])
         }
 
-        XCTAssertEqual(similarity, 0.3, accuracy: 0.1)
+        XCTAssertEqual(similarity, 0.0, accuracy: 0.1)
     }
 
     private func printSheetAndFail(

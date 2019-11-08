@@ -68,8 +68,8 @@ final class LinearVelocityModelTests: XCTestCase {
 
     lazy var observationNoiseStdDeviations: Vector<Double> = {
         return [
-            2.0, // position x
-            2.0, // position y
+            1.0, // position x
+            1.0, // position y
         ]
     }()
 
@@ -135,7 +135,7 @@ final class LinearVelocityModelTests: XCTestCase {
             ),
             updater: ParticleUpdater(
                 observationModel: self.observationModel,
-                stdDeviation: self.stdDeviation,
+                observationNoise: self.observationNoiseStdDeviations,
                 threshold: self.threshold,
                 generator: generator
             )
@@ -188,7 +188,7 @@ final class LinearVelocityModelTests: XCTestCase {
             return Vector([x, y])
         }
 
-        XCTAssertEqual(similarity, 0.0, accuracy: 0.1)
+        XCTAssertEqual(similarity, 0.1, accuracy: 0.1)
     }
 
     private func printSheetAndFail(

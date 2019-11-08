@@ -84,7 +84,7 @@ final class LandmarkLocalizationTests: XCTestCase {
 
     lazy var observationNoiseStdDeviations: Vector<Double> = {
         return [
-            2.0, // distance
+            1.0, // distance
         ]
     }()
 
@@ -160,7 +160,7 @@ final class LandmarkLocalizationTests: XCTestCase {
                 generator: generator
             ),
             updater: MultiModalParticleUpdater(
-                stdDeviation: self.stdDeviation,
+                observationNoise: self.observationNoiseStdDeviations,
                 threshold: self.threshold,
                 generator: generator
             ) {
@@ -208,7 +208,7 @@ final class LandmarkLocalizationTests: XCTestCase {
 
         print(#function, "similarity:", similarity)
 
-        XCTAssertEqual(similarity, 3.8, accuracy: 0.1)
+        XCTAssertEqual(similarity, 0.3, accuracy: 0.1)
     }
 
     func testConstantModel() {
@@ -220,7 +220,7 @@ final class LandmarkLocalizationTests: XCTestCase {
 
         print(#function, "similarity:", similarity)
 
-        XCTAssertEqual(similarity, 8.2, accuracy: 0.1)
+        XCTAssertEqual(similarity, 0.2, accuracy: 0.1)
     }
 
     func testVariableModel() {
@@ -234,7 +234,7 @@ final class LandmarkLocalizationTests: XCTestCase {
 
         print(#function, "similarity:", similarity)
 
-        XCTAssertEqual(similarity, 4.6, accuracy: 0.1)
+        XCTAssertEqual(similarity, 0.3, accuracy: 0.1)
     }
 
     private func printSheetAndFail(

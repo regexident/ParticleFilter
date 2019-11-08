@@ -151,7 +151,7 @@ final class LinearAccelerationModelTests: XCTestCase {
             ),
             updater: ParticleUpdater(
                 observationModel: self.observationModel,
-                stdDeviation: self.stdDeviation,
+                observationNoise: self.observationNoiseStdDeviations,
                 threshold: self.threshold,
                 generator: generator
             )
@@ -196,7 +196,7 @@ final class LinearAccelerationModelTests: XCTestCase {
             return Vector([x, y])
         }
 
-        XCTAssertEqual(similarity, 2.3, accuracy: 0.1)
+        XCTAssertEqual(similarity, 2.5, accuracy: 0.1)
     }
 
     func testVariableModel() {
@@ -208,7 +208,7 @@ final class LinearAccelerationModelTests: XCTestCase {
             return Vector([x, y])
         }
 
-        XCTAssertEqual(similarity, 2.3, accuracy: 0.1)
+        XCTAssertEqual(similarity, 4.7, accuracy: 0.1)
     }
 
     private func printSheetAndFail(
