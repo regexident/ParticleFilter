@@ -26,11 +26,11 @@ extension LinearMotionModel: ParticleMotionModel {
     // Nothing
 }
 
-extension BrownianMotionModel: ParticleMotionModel
-    where MotionModel: ParticleMotionModel
-{
-    // Nothing
-}
+//extension BrownianMotionModel: ParticleMotionModel
+//    where MotionModel: ParticleMotionModel
+//{
+//    // Nothing
+//}
 
 extension NonlinearMotionModel: ParticleMotionModel {
     // Nothing
@@ -38,11 +38,11 @@ extension NonlinearMotionModel: ParticleMotionModel {
 
 // MARK: - Controllable Motion Models
 
-extension BrownianMotionModel: ControllableParticleMotionModel
-    where MotionModel: ControllableParticleMotionModel
-{
-    // Nothing
-}
+//extension BrownianMotionModel: ControllableParticleMotionModel
+//    where MotionModel: ControllableParticleMotionModel
+//{
+//    // Nothing
+//}
 
 extension ControllableLinearMotionModel: ControllableParticleMotionModel
     where MotionModel: ParticleMotionModel, ControlModel: ParticleControlModel

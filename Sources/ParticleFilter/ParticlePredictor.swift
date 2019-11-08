@@ -21,13 +21,30 @@ public class ParticlePredictor<MotionModel> {
     /// Motion model (used for prediction).
     public var motionModel: BrownianMotionModel<MotionModel>
 
-    public init(
+    public convenience init(
         motionModel: MotionModel,
         processNoise: Vector<Double>
     ) {
+        let generator = SystemRandomNumberGenerator()
+        self.init(
+            motionModel: motionModel,
+            processNoise: processNoise,
+            generator: generator
+        )
+    }
+
+    public init<T>(
+        motionModel: MotionModel,
+        processNoise: Vector<Double>,
+        generator: T
+    )
+    where
+        T: RandomNumberGenerator
+    {
         self.motionModel = BrownianMotionModel(
             motionModel: motionModel,
-            stdDeviations: processNoise
+            stdDeviations: processNoise,
+            generator: generator
         )
     }
 

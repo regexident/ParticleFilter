@@ -44,12 +44,12 @@ extension Vector where Scalar == Float {
     /// - center: `observation.xyz`
     /// and a guassian distribution on radius
     /// with std-deviation of `stdDeviation`.
-    public func sample(
+    public func sampleSphere(
         radius: Scalar,
         stdDeviation: Scalar
     ) -> Vector<Scalar> {
         var generator = SystemRandomNumberGenerator()
-        return self.sample(
+        return self.sampleSphere(
             radius: radius,
             stdDeviation: stdDeviation,
             using: &generator
@@ -61,15 +61,13 @@ extension Vector where Scalar == Float {
     /// - center: `observation.xyz`
     /// and a guassian distribution on radius
     /// with std-deviation of `stdDeviation`.
-    public func sample<T>(
+    public func sampleSphere<T>(
         radius: Scalar,
         stdDeviation: Scalar,
         using generator: inout T
     ) -> Vector<Scalar>
         where T: RandomNumberGenerator
     {
-        var generator = generator
-        
         let dimensions = self.dimensions
         
         // To generate uniformly distributed random points on the unit (n − 1)-sphere
@@ -128,8 +126,6 @@ extension Vector where Scalar == Double {
     ) -> Vector<Scalar>
         where T: RandomNumberGenerator
     {
-        var generator = generator
-        
         let dimensions = self.dimensions
         
         // To generate uniformly distributed random points on the unit (n − 1)-sphere

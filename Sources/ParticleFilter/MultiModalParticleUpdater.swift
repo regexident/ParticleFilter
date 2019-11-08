@@ -16,15 +16,35 @@ public class MultiModalParticleUpdater<Model, ObservationModel>
     public var threshold: Double
 
     public var observationModels: [Model: ObservationModel] = [:]
+    private var generator: AnyRandomNumberGenerator
     public var closure: (Model) -> ObservationModel
 
-    public init(
+    public convenience init(
         stdDeviation: Double,
         threshold: Double,
         closure: @escaping (Model) -> ObservationModel
     ) {
+        let generator = SystemRandomNumberGenerator()
+        self.init(
+            stdDeviation: stdDeviation,
+            threshold: threshold,
+            generator: generator,
+            closure: closure
+        )
+    }
+
+    public init<T>(
+        stdDeviation: Double,
+        threshold: Double,
+        generator: T,
+        closure: @escaping (Model) -> ObservationModel
+    )
+    where
+        T: RandomNumberGenerator
+    {
         self.stdDeviation = stdDeviation
         self.threshold = threshold
+        self.generator = AnyRandomNumberGenerator(generator)
         self.closure = closure
     }
 
@@ -97,10 +117,10 @@ extension MultiModalParticleUpdater
         }
     }
 
-    internal static func resample(estimate: Estimate) -> Estimate {
-        var generator = SystemRandomNumberGenerator()
-        return self.resample(estimate: estimate, using: &generator)
-    }
+//    internal static func resample(estimate: Estimate) -> Estimate {
+//        var generator = SystemRandomNumberGenerator()
+//        return self.resample(estimate: estimate, using: &generator)
+//    }
 
     internal static func resample<T>(
         estimate: Estimate,
@@ -216,8 +236,9 @@ extension MultiModalParticleUpdater: BayesUpdaterProtocol, ParticleUpdaterProtoc
         }
 
         // Resample particles if particle set has been depleted/impoverished:
-        let resampled = type(of: self).resample(
-            estimate: estimate
+        let resampled = Self.resample(
+            estimate: estimate,
+            using: &self.generator
         )
 
         return resampled

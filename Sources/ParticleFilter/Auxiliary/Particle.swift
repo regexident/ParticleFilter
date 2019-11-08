@@ -1,5 +1,3 @@
-import Darwin
-
 import Surge
 
 public struct Particle: Equatable {

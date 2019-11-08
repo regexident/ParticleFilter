@@ -85,9 +85,11 @@ final class LinearVelocityModelTests: XCTestCase {
     let stdDeviation: Double = 1.0
     let threshold: Double = 0.5
 
-    let particleCount: Int = 1000
+    let particleCount: Int = 100
 
     func filter(control: (Int) -> Vector<Double>) -> Double {
+        var generator = DeterministicRandomNumberGenerator(seed: (0, 1, 2, 3))
+        
         let initialState: Vector<Double> = [
             0.0, // Position X
             0.0, // Position Y
@@ -117,7 +119,10 @@ final class LinearVelocityModelTests: XCTestCase {
 
         let observations: [Vector<Double>] = states.map { state in
             let observation: Vector<Double> = self.observationModel.apply(state: state)
-            let standardNoise: Vector<Double> = Vector.randomNormal(count: self.dimensions.observation)
+            let standardNoise: Vector<Double> = .randomNormal(
+                count: self.dimensions.observation,
+                using: &generator
+            )
             let noise: Vector<Double> = self.observationNoiseCovariance * standardNoise
             return observation + noise
         }
@@ -125,12 +130,14 @@ final class LinearVelocityModelTests: XCTestCase {
         let particleFilter = ParticleFilter(
             predictor: ParticlePredictor(
                 motionModel: self.motionModel,
-                processNoise: self.processNoiseStdDeviations
+                processNoise: self.processNoiseStdDeviations,
+                generator: generator
             ),
             updater: ParticleUpdater(
                 observationModel: self.observationModel,
                 stdDeviation: self.stdDeviation,
-                threshold: self.threshold
+                threshold: self.threshold,
+                generator: generator
             )
         )
 
@@ -169,7 +176,7 @@ final class LinearVelocityModelTests: XCTestCase {
             return Vector([x, y])
         }
 
-        XCTAssertLessThan(similarity, 1.0)
+        XCTAssertEqual(similarity, 0.0, accuracy: 0.1)
     }
 
     func testVariableModel() {
@@ -181,7 +188,7 @@ final class LinearVelocityModelTests: XCTestCase {
             return Vector([x, y])
         }
 
-        XCTAssertLessThan(similarity, 1.0)
+        XCTAssertEqual(similarity, 0.0, accuracy: 0.1)
     }
 
     private func printSheetAndFail(

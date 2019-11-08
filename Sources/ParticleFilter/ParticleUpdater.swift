@@ -30,14 +30,33 @@ public class ParticleUpdater<ObservationModel> {
 
     private let multiModal: MultiModalParticleUpdater<UniformModel, ObservationModel>
 
-    public init(
+    public convenience init(
         observationModel: ObservationModel,
         stdDeviation: Double,
         threshold: Double
     ) {
+        let generator = SystemRandomNumberGenerator()
+        self.init(
+            observationModel: observationModel,
+            stdDeviation: stdDeviation,
+            threshold: threshold,
+            generator: generator
+        )
+    }
+
+    public init<T>(
+        observationModel: ObservationModel,
+        stdDeviation: Double,
+        threshold: Double,
+        generator: T
+    )
+    where
+        T: RandomNumberGenerator
+    {
         self.multiModal = MultiModalParticleUpdater(
             stdDeviation: stdDeviation,
-            threshold: threshold
+            threshold: threshold,
+            generator: generator
         ) { model in
             return observationModel
         }

@@ -103,6 +103,8 @@ final class LandmarkLocalizationTests: XCTestCase {
     let particleCount: Int = 100
 
     func filter(control: (Int) -> Vector<Double>) -> Double {
+        var generator = DeterministicRandomNumberGenerator(seed: (0, 1, 2, 3))
+
         let initialState: Vector<Double> = [
             0.0, // target position X
             0.0, // target position Y
@@ -141,7 +143,10 @@ final class LandmarkLocalizationTests: XCTestCase {
             landmarks.map { landmark in
                 let observationModel = self.observationModel(landmark: landmark)
                 let observation: Vector<Double> = observationModel.apply(state: state)
-                let standardNoise: Vector<Double> = Vector.randomNormal(count: self.dimensions.observation)
+                let standardNoise: Vector<Double> = .randomNormal(
+                    count: self.dimensions.observation,
+                    using: &generator
+                )
                 let noise: Vector<Double> = self.observationNoiseCovariance * standardNoise
                 let noisyObservation = observation + noise
                 return MultiModal(model: landmark, value: noisyObservation)
@@ -151,11 +156,13 @@ final class LandmarkLocalizationTests: XCTestCase {
         let particleFilter = ParticleFilter(
             predictor: ParticlePredictor(
                 motionModel: self.motionModel,
-                processNoise: self.processNoiseStdDeviations
+                processNoise: self.processNoiseStdDeviations,
+                generator: generator
             ),
             updater: MultiModalParticleUpdater(
                 stdDeviation: self.stdDeviation,
-                threshold: self.threshold
+                threshold: self.threshold,
+                generator: generator
             ) {
                 self.observationModel(landmark: $0)
             }
@@ -201,7 +208,7 @@ final class LandmarkLocalizationTests: XCTestCase {
 
         print(#function, "similarity:", similarity)
 
-        XCTAssertLessThan(similarity, 0.5)
+        XCTAssertEqual(similarity, 3.8, accuracy: 0.1)
     }
 
     func testConstantModel() {
@@ -213,7 +220,7 @@ final class LandmarkLocalizationTests: XCTestCase {
 
         print(#function, "similarity:", similarity)
 
-        XCTAssertLessThan(similarity, 0.5)
+        XCTAssertEqual(similarity, 8.2, accuracy: 0.1)
     }
 
     func testVariableModel() {
@@ -227,7 +234,7 @@ final class LandmarkLocalizationTests: XCTestCase {
 
         print(#function, "similarity:", similarity)
 
-        XCTAssertLessThan(similarity, 10.0)
+        XCTAssertEqual(similarity, 4.6, accuracy: 0.1)
     }
 
     private func printSheetAndFail(
