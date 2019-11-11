@@ -120,11 +120,6 @@ extension MultiModalParticleUpdater
         }
     }
 
-//    internal static func resample(estimate: Estimate) -> Estimate {
-//        var generator = SystemRandomNumberGenerator()
-//        return self.resample(estimate: estimate, using: &generator)
-//    }
-
     internal static func resample<T>(
         estimate: Estimate,
         using generator: inout T
