@@ -82,7 +82,6 @@ final class LinearVelocityModelTests: XCTestCase {
         )
     }()
 
-    let stdDeviation: Double = 1.0
     let threshold: Double = 0.75
 
     let particleCount: Int = 100
