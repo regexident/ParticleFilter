@@ -113,11 +113,7 @@ extension MultiModalParticleUpdater
         let neff = totalWeightsSquared / (totalSquaredWeights + epsilon)
         let normalizedNeff = neff / Double(weights.count)
 
-        if normalizedNeff > threshold {
-            return true
-        } else {
-            return false
-        }
+        return normalizedNeff < threshold
     }
 
     internal static func resample<T>(
