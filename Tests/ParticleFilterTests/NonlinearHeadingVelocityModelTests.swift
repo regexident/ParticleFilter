@@ -83,7 +83,7 @@ final class NonlinearHeadingVelocityModelTests: XCTestCase {
     }()
 
     let stdDeviation: Double = 2.0
-    let threshold: Double = 0.5
+    let threshold: Double = 0.75
 
     let particleCount: Int = 100
 

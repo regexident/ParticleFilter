@@ -83,7 +83,7 @@ final class LinearVelocityModelTests: XCTestCase {
     }()
 
     let stdDeviation: Double = 1.0
-    let threshold: Double = 0.5
+    let threshold: Double = 0.75
 
     let particleCount: Int = 100
 
@@ -176,7 +176,7 @@ final class LinearVelocityModelTests: XCTestCase {
             return Vector([x, y])
         }
 
-        XCTAssertEqual(similarity, 0.0, accuracy: 0.1)
+        XCTAssertEqual(similarity, 0.1, accuracy: 0.1)
     }
 
     func testVariableModel() {

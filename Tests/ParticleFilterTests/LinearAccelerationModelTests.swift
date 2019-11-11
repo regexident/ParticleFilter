@@ -89,7 +89,7 @@ final class LinearAccelerationModelTests: XCTestCase {
     }()
 
     let stdDeviation: Double = 2.0
-    let threshold: Double = 0.5
+    let threshold: Double = 0.75
 
     let particleCount: Int = 100
 
@@ -208,7 +208,7 @@ final class LinearAccelerationModelTests: XCTestCase {
             return Vector([x, y])
         }
 
-        XCTAssertEqual(similarity, 4.7, accuracy: 0.1)
+        XCTAssertEqual(similarity, 2.5, accuracy: 0.1)
     }
 
     private func printSheetAndFail(

@@ -84,7 +84,7 @@ final class NonlinearVelocityYawModelTests: XCTestCase {
     }()
 
     let stdDeviation: Double = 2.0
-    let threshold: Double = 0.5
+    let threshold: Double = 0.75
 
     let particleCount: Int = 100
 
@@ -178,7 +178,7 @@ final class NonlinearVelocityYawModelTests: XCTestCase {
             return Vector([velocity, yaw])
         }
 
-        XCTAssertEqual(similarity, 0.2, accuracy: 0.1)
+        XCTAssertEqual(similarity, 0.3, accuracy: 0.1)
     }
 
     func testVariableModel() {
@@ -190,7 +190,7 @@ final class NonlinearVelocityYawModelTests: XCTestCase {
             return Vector([velocity, yaw])
         }
 
-        XCTAssertEqual(similarity, 0.0, accuracy: 0.1)
+        XCTAssertEqual(similarity, 0.1, accuracy: 0.1)
     }
 
     private func printSheetAndFail(

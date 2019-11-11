@@ -97,8 +97,7 @@ final class LandmarkLocalizationTests: XCTestCase {
         )
     }()
 
-    let stdDeviation: Double = 1.0
-    let threshold: Double = 0.5
+    let threshold: Double = 0.75
 
     let particleCount: Int = 100
 
@@ -208,7 +207,7 @@ final class LandmarkLocalizationTests: XCTestCase {
 
         print(#function, "similarity:", similarity)
 
-        XCTAssertEqual(similarity, 0.3, accuracy: 0.1)
+        XCTAssertEqual(similarity, 0.4, accuracy: 0.1)
     }
 
     func testConstantModel() {
@@ -220,7 +219,7 @@ final class LandmarkLocalizationTests: XCTestCase {
 
         print(#function, "similarity:", similarity)
 
-        XCTAssertEqual(similarity, 0.2, accuracy: 0.1)
+        XCTAssertEqual(similarity, 0.4, accuracy: 0.1)
     }
 
     func testVariableModel() {
