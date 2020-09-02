@@ -114,7 +114,7 @@ final class LinearAccelerationModelTests: XCTestCase {
             states: Array(repeating: initialState, count: self.particleCount)
         )
 
-        let sampleCount = 200
+        let sampleCount = 250
         let controls: [Vector<Double>] = (0..<sampleCount).map(control)
 
         let states = self.makeSignal(
@@ -124,10 +124,6 @@ final class LinearAccelerationModelTests: XCTestCase {
             processNoise: self.processNoiseCovariance
         )
 
-        for state in states {
-            print("\(state[0])\t\(state[1])")
-        }
-
         let observations: [Vector<Double>] = states.map { state in
             let observation: Vector<Double> = self.observationModel.apply(state: state)
             let standardNoise: Vector<Double> = .randomNormal(
@@ -136,10 +132,6 @@ final class LinearAccelerationModelTests: XCTestCase {
             )
             let noise: Vector<Double> = self.observationNoiseCovariance * standardNoise
             return observation + noise
-        }
-
-        for observation in observations {
-            print("\(observation[0])\t\(observation[1])")
         }
 
         let particleFilter = ParticleFilter(
@@ -167,13 +159,9 @@ final class LinearAccelerationModelTests: XCTestCase {
             return statefulParticleFilter.estimate.mean
         }
 
-        for filteredState in filteredStates {
-            print("\(filteredState[0])\t\(filteredState[1])")
-        }
-
 //        self.printSheetAndFail(
 //            trueStates: states,
-//            estimatedStates: filteredStates
+//            estimatedStates: filteredStates,
 //            observations: observations
 //        )
 
@@ -195,7 +183,7 @@ final class LinearAccelerationModelTests: XCTestCase {
             return Vector([x, y])
         }
 
-        XCTAssertEqual(similarity, 2.5, accuracy: 0.1)
+        XCTAssertEqual(similarity, 2.2, accuracy: 0.1)
     }
 
     func testVariableModel() {

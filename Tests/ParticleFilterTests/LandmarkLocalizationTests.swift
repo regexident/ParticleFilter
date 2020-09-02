@@ -128,7 +128,7 @@ final class LandmarkLocalizationTests: XCTestCase {
             Landmark(location: [10.0, 10.0]),
         ]
 
-        let sampleCount = 200
+        let sampleCount = 250
         let controls: [Vector<Double>] = (0..<sampleCount).map(control)
 
         let states = self.makeSignal(

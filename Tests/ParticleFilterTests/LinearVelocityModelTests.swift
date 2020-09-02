@@ -106,7 +106,7 @@ final class LinearVelocityModelTests: XCTestCase {
             states: Array(repeating: initialState, count: self.particleCount)
         )
 
-        let sampleCount = 200
+        let sampleCount = 250
         let controls: [Vector<Double>] = (0..<sampleCount).map(control)
 
         let states = self.makeSignal(

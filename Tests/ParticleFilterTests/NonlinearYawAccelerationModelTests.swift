@@ -112,7 +112,7 @@ final class NonlinearYawAccelerationModelTests: XCTestCase {
             states: Array(repeating: initialState, count: self.particleCount)
         )
 
-        let sampleCount = 200
+        let sampleCount = 250
         let controls: [Vector<Double>] = (0..<sampleCount).map { i in
             let yaw = self.yaw
             let acceleration = self.acceleration
@@ -185,7 +185,7 @@ final class NonlinearYawAccelerationModelTests: XCTestCase {
             return Vector([yaw, acceleration])
         }
 
-        XCTAssertEqual(similarity, 1.3, accuracy: 0.1)
+        XCTAssertEqual(similarity, 1.1, accuracy: 0.1)
     }
 
     func testVariableModel() {
@@ -197,7 +197,7 @@ final class NonlinearYawAccelerationModelTests: XCTestCase {
             return Vector([yaw, acceleration])
         }
 
-        XCTAssertEqual(similarity, 1.3, accuracy: 0.1)
+        XCTAssertEqual(similarity, 1.1, accuracy: 0.1)
     }
 
     private func printSheetAndFail(
