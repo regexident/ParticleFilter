@@ -1,7 +1,5 @@
 import BayesFilter
 
-import BayesFilter
-
 public protocol ParticleFilterProtocol: BayesFilterProtocol
 where
     Estimate == ParticleEstimate
